@@ -18,10 +18,10 @@ DEPLOY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$DEPLOY_DIR"
 
 # shellcheck disable=SC1091
-[[ -f .env ]] && set -a && source .env && set +a
+[[ -f .env.prod ]] && set -a && source .env.prod && set +a
 
-: "${DOMAIN:?DOMAIN not set in .env}"
-: "${CERTBOT_EMAIL:?CERTBOT_EMAIL env var not set}"
+: "${DOMAIN:?DOMAIN not set in .env.prod}"
+: "${CERTBOT_EMAIL:?CERTBOT_EMAIL env var not set (export it before running)}"
 
 STAGING_FLAG=""
 if [[ "${STAGING:-0}" == "1" ]]; then
