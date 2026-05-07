@@ -27,13 +27,13 @@ done
 
 cd "$DEPLOY_DIR"
 
-if [[ ! -f .env.prod ]]; then
-  echo "ERROR: ${DEPLOY_DIR}/.env.prod not found." >&2
-  echo "       cp .env.prod.example .env.prod && chmod 600 .env.prod && \$EDITOR .env.prod" >&2
+if [[ ! -f .env ]]; then
+  echo "ERROR: ${DEPLOY_DIR}/.env not found." >&2
+  echo "       cp .env.prod.example .env && chmod 600 .env && \$EDITOR .env" >&2
   exit 1
 fi
-if grep -q '__CHANGE_ME__' .env.prod; then
-  echo "ERROR: ${DEPLOY_DIR}/.env.prod still contains __CHANGE_ME__ placeholders." >&2
+if grep -q '__CHANGE_ME__' .env; then
+  echo "ERROR: ${DEPLOY_DIR}/.env still contains __CHANGE_ME__ placeholders." >&2
   exit 1
 fi
 

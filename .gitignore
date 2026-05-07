@@ -1,6 +1,5 @@
 # Production secrets — populated on the host, never committed
 .env
-.env.prod
 .env.local
 .env.*.local
 

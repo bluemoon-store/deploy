@@ -59,7 +59,7 @@ services:
         image: jinx-be:${IMAGE_TAG:-latest}
         container_name: jinx-migrator
         restart: 'no'
-        env_file: .env.prod
+        env_file: .env
         command: ['yarn', 'migrate:prod']
         depends_on:
             postgres:
@@ -73,7 +73,7 @@ services:
         image: jinx-be:${IMAGE_TAG:-latest}
         container_name: jinx-api
         restart: unless-stopped
-        env_file: .env.prod
+        env_file: .env
         environment:
             APP_ROLE: api
         command: ['node', 'dist/main']
@@ -103,7 +103,7 @@ services:
         image: jinx-be:${IMAGE_TAG:-latest}
         container_name: jinx-worker
         restart: unless-stopped
-        env_file: .env.prod
+        env_file: .env
         environment:
             APP_ROLE: worker
         command: ['node', 'dist/main']
