@@ -7,7 +7,7 @@ x-logging: &default-logging
         max-file: '3'
 
 x-be-build: &be-build
-    context: ../bluemoon-be
+    context: ../jinx-be
     dockerfile: Dockerfile
 
 services:
@@ -120,7 +120,7 @@ services:
 
     fe:
         build:
-            context: ../bluemoon-fe
+            context: ../jinx-fe
             dockerfile: Dockerfile
             args:
                 NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
@@ -144,7 +144,7 @@ services:
 
     admin:
         build:
-            context: ../bluemoon-admin
+            context: ../jinx-admin
             dockerfile: Dockerfile
             args:
                 NEXT_PUBLIC_BACKEND_API_URL: ${NEXT_PUBLIC_BACKEND_API_URL}
