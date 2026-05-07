@@ -4,8 +4,8 @@
 #
 # Prerequisites (must all be true before running):
 #   - DNS A records for app.<DOMAIN>, admin.<DOMAIN>, api.<DOMAIN>, <DOMAIN>
-#     point at this EC2 instance's Elastic IP.
-#   - Security group allows inbound :80 from 0.0.0.0/0.
+#     point at this server's public IP.
+#   - Firewall allows inbound :80 from 0.0.0.0/0.
 #   - deploy/.env populated with DOMAIN and CERTBOT_EMAIL set in the env.
 #
 # Usage:

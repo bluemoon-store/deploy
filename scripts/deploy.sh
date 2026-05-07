@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# Production deploy on EC2.
+# Production deploy on a VPS host.
 #
 # Pulls latest code in each project subdir, rebuilds images, runs migrations,
 # and recreates app containers. Data containers (postgres, redis) and nginx
@@ -19,7 +19,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 DEPLOY_DIR="${ROOT_DIR}/deploy"
 
 echo "==> Pulling latest code"
-for proj in bluemoon-be bluemoon-fe bluemoon-admin; do
+for proj in jinx-be jinx-fe jinx-admin; do
   if [[ -d "${ROOT_DIR}/${proj}/.git" ]]; then
     git -C "${ROOT_DIR}/${proj}" pull --ff-only
   fi
@@ -38,7 +38,7 @@ if grep -q '__CHANGE_ME__' .env; then
 fi
 
 # Tag images with current backend git SHA for easy rollback
-TAG="$(git -C "${ROOT_DIR}/bluemoon-be" rev-parse --short HEAD 2>/dev/null || echo latest)"
+TAG="$(git -C "${ROOT_DIR}/jinx-be" rev-parse --short HEAD 2>/dev/null || echo latest)"
 export IMAGE_TAG="$TAG"
 
 echo "==> Building images (tag: ${TAG})"
