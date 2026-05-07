@@ -1,0 +1,24 @@
+# Monorepo root .gitignore — applies to deploy/ and any cross-project files
+# Per-project .gitignore files in bluemoon-be, bluemoon-fe, bluemoon-admin
+# remain authoritative for their respective subtrees.
+
+# Environment files — never commit production secrets
+.env
+.env.*
+!.env.template
+!.env.example
+!.env.docker
+
+# Deploy materializations
+deploy/.env
+deploy/nginx/bootstrap/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log

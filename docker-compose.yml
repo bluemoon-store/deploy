@@ -1,0 +1,213 @@
+name: jinx
+
+x-logging: &default-logging
+    driver: json-file
+    options:
+        max-size: '10m'
+        max-file: '3'
+
+x-be-build: &be-build
+    context: ../bluemoon-be
+    dockerfile: Dockerfile
+
+services:
+    postgres:
+        image: postgres:16-alpine
+        container_name: jinx-postgres
+        restart: unless-stopped
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+            PGDATA: /var/lib/postgresql/data/pgdata
+        volumes:
+            - pg_data:/var/lib/postgresql/data
+        networks:
+            - jinx-net
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+            interval: 10s
+            timeout: 5s
+            retries: 5
+            start_period: 20s
+        logging: *default-logging
+
+    redis:
+        image: redis:7-alpine
+        container_name: jinx-redis
+        restart: unless-stopped
+        command: >
+            redis-server
+            --requirepass ${REDIS_PASSWORD}
+            --appendonly yes
+            --maxmemory 512mb
+            --maxmemory-policy allkeys-lru
+        volumes:
+            - redis_data:/data
+        networks:
+            - jinx-net
+        healthcheck:
+            test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD}', 'ping']
+            interval: 10s
+            timeout: 5s
+            retries: 5
+            start_period: 10s
+        logging: *default-logging
+
+    migrator:
+        build: *be-build
+        image: jinx-be:${IMAGE_TAG:-latest}
+        container_name: jinx-migrator
+        restart: 'no'
+        env_file: .env
+        command: ['yarn', 'migrate:prod']
+        depends_on:
+            postgres:
+                condition: service_healthy
+        networks:
+            - jinx-net
+        logging: *default-logging
+
+    api:
+        build: *be-build
+        image: jinx-be:${IMAGE_TAG:-latest}
+        container_name: jinx-api
+        restart: unless-stopped
+        env_file: .env
+        environment:
+            APP_ROLE: api
+        command: ['node', 'dist/main']
+        depends_on:
+            postgres:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            migrator:
+                condition: service_completed_successfully
+        networks:
+            - jinx-net
+        healthcheck:
+            test:
+                [
+                    'CMD-SHELL',
+                    'wget -qO- http://127.0.0.1:${HTTP_PORT:-3001}/health || exit 1',
+                ]
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 30s
+        logging: *default-logging
+
+    worker:
+        build: *be-build
+        image: jinx-be:${IMAGE_TAG:-latest}
+        container_name: jinx-worker
+        restart: unless-stopped
+        env_file: .env
+        environment:
+            APP_ROLE: worker
+        command: ['node', 'dist/main']
+        depends_on:
+            postgres:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            migrator:
+                condition: service_completed_successfully
+        networks:
+            - jinx-net
+        logging: *default-logging
+
+    fe:
+        build:
+            context: ../bluemoon-fe
+            dockerfile: Dockerfile
+            args:
+                NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+                NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL}
+                NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+                NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+                NEXT_PUBLIC_GA_ID: ${NEXT_PUBLIC_GA_ID:-}
+        image: jinx-fe:${IMAGE_TAG:-latest}
+        container_name: jinx-fe
+        restart: unless-stopped
+        environment:
+            NODE_ENV: production
+            PORT: 3000
+            HOSTNAME: 0.0.0.0
+        depends_on:
+            api:
+                condition: service_healthy
+        networks:
+            - jinx-net
+        logging: *default-logging
+
+    admin:
+        build:
+            context: ../bluemoon-admin
+            dockerfile: Dockerfile
+            args:
+                NEXT_PUBLIC_BACKEND_API_URL: ${NEXT_PUBLIC_BACKEND_API_URL}
+        image: jinx-admin:${IMAGE_TAG:-latest}
+        container_name: jinx-admin
+        restart: unless-stopped
+        environment:
+            NODE_ENV: production
+            PORT: 3002
+            HOSTNAME: 0.0.0.0
+        depends_on:
+            api:
+                condition: service_healthy
+        networks:
+            - jinx-net
+        logging: *default-logging
+
+    nginx:
+        image: nginx:alpine
+        container_name: jinx-nginx
+        restart: unless-stopped
+        ports:
+            - '80:80'
+            - '443:443'
+        environment:
+            DOMAIN: ${DOMAIN}
+            NGINX_ENVSUBST_OUTPUT_DIR: /etc/nginx/conf.d
+        volumes:
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./nginx/conf.d:/etc/nginx/templates:ro
+            - letsencrypt:/etc/letsencrypt:ro
+            - certbot_www:/var/www/certbot:ro
+        depends_on:
+            - api
+            - fe
+            - admin
+        networks:
+            - jinx-net
+        logging: *default-logging
+
+    certbot:
+        image: certbot/certbot:latest
+        container_name: jinx-certbot
+        restart: 'no'
+        volumes:
+            - letsencrypt:/etc/letsencrypt
+            - certbot_www:/var/www/certbot
+        entrypoint: ['/bin/sh', '-c']
+        command: ['echo "certbot service - run on demand"; sleep infinity']
+        profiles: ['certbot-renew']
+        logging: *default-logging
+
+networks:
+    jinx-net:
+        driver: bridge
+        name: jinx-net
+
+volumes:
+    pg_data:
+        name: jinx-pg-data
+    redis_data:
+        name: jinx-redis-data
+    letsencrypt:
+        name: jinx-letsencrypt
+    certbot_www:
+        name: jinx-certbot-www
