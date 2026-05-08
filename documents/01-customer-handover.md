@@ -29,7 +29,7 @@ VPS host (Ubuntu 24.04)
 
 External services still in use:
 - **Supabase Storage** — user uploads, public assets
-- **Resend** — transactional email
+- **SendPulse** — transactional email (HTTP SMTP API)
 - **Tatum** — blockchain RPC for crypto payments
 - **Sentry** *(optional)* — error tracking
 
@@ -72,7 +72,7 @@ These run automatically — no human action needed:
 |---|---|
 | "Site is down" (any subdomain) | SSH in, run `docker compose ps` in `/opt/jinx/deploy` — every container should be `(healthy)`. Restart any that aren't. |
 | "Browser says cert is invalid" | `docker compose exec nginx nginx -t`; check certbot logs at `/var/log/certbot-renew.log`. See *operations* doc for re-issuance. |
-| "Orders aren't sending email" | Worker container is the email processor. `docker compose logs worker | grep -i email`. Verify `RESEND_API_KEY` in `.env`. |
+| "Orders aren't sending email" | Worker container is the email processor. `docker compose logs worker | grep -i email`. Verify `SENDPULSE_API_USER_ID`/`SENDPULSE_API_SECRET` and the verified sender domain in `.env`. |
 | "Crypto payment not confirming" | Worker logs again. Check Tatum API quota and `TATUM_API_KEY`. |
 | "Database is slow" | See the *operations* doc → Postgres section. |
 
@@ -84,10 +84,10 @@ These are intentionally outside the VPS box and require their own runbooks:
 
 - DNS / domain registrar
 - Supabase project (storage buckets, dashboard access)
-- Resend account (email sender domain verification, suppression list)
+- SendPulse account (SMTP application approval, sender domain DKIM/SPF/DMARC, suppression list)
 - Tatum / Kraken API accounts
 - VPS provider account (billing and server console)
-External SaaS (Supabase, Resend, Tatum, Sentry) bills separately.
+External SaaS (Supabase, SendPulse, Tatum, Sentry) bills separately.
 
 ## Handover checklist
 
@@ -97,7 +97,7 @@ When transferring ownership of this system, hand over:
 - [ ] Server SSH key
 - [ ] Domain registrar credentials
 - [ ] Supabase project access
-- [ ] Resend, Tatum, Kraken, Sentry accounts
+- [ ] SendPulse, Tatum, Kraken, Sentry accounts
 - [ ] Git repo access for `jinx-be`, `jinx-fe`, `jinx-admin`, `deploy`
 - [ ] Contents of `/opt/jinx/deploy/.env` (transferred securely — encrypted file or password manager, never email/Slack)
 - [ ] Most recent Postgres dump (`/var/backups/postgres/jinx_*.dump`)
