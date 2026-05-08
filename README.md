@@ -34,7 +34,7 @@ the Next.js admin, and an Nginx reverse proxy with Let's Encrypt TLS.
                   ┌──────▼──────┐
                   │   Nginx     │  TLS / routing by Host header
                   └──┬──┬──┬────┘
-        app.jinx.to  │  │  │  api.jinx.to
+            jinx.to  │  │  │  api.jinx.to
                      │  │  │
               ┌──────▼┐ │ ┌▼──────────┐
               │  fe   │ │ │   api     │  APP_ROLE=api

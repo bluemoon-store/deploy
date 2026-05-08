@@ -19,12 +19,12 @@ Point four A records (TTL 300) at the server public IP, **before** running certb
 
 ```
 jinx.to         A  <SERVER_IP>
-app.jinx.to     A  <SERVER_IP>
+www.jinx.to     A  <SERVER_IP>
 admin.jinx.to   A  <SERVER_IP>
 api.jinx.to     A  <SERVER_IP>
 ```
 
-Wait until `dig +short app.jinx.to` returns the server IP from a remote machine.
+Wait until `dig +short jinx.to` returns the server IP from a remote machine.
 
 ## 3. Bootstrap the host (one-time)
 
@@ -100,7 +100,7 @@ openssl rand -base64 24 | tr -d '/+=' | cut -c1-32
 Required keys (anything else is optional):
 
 - `DOMAIN` — e.g. `jinx.to`
-- `NEXT_PUBLIC_*` — public URLs (`https://app.jinx.to`, `https://api.jinx.to/v1`, etc.)
+- `NEXT_PUBLIC_*` — public URLs (`https://jinx.to`, `https://api.jinx.to/v1`, etc.)
 - `CENTRAL_LICENSE_KEY` — required at FE build time for `@central-icons-react`
 - `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
 - `DATABASE_URL` — must encode the password from `POSTGRES_PASSWORD` and use the service hostname `postgres`
@@ -187,7 +187,8 @@ docker compose exec -e CLI_PATH=./dist/cli.js api yarn seed:all
 ```bash
 # DNS + TLS
 curl -I https://api.jinx.to/health        # → 200
-curl -I https://app.jinx.to               # → 200
+curl -I https://jinx.to                   # → 200
+curl -I https://www.jinx.to               # → 301 → https://jinx.to
 curl -I https://admin.jinx.to             # → 200
 
 # Bull Board NOT exposed in prod
@@ -198,7 +199,7 @@ nmap -p 3000,3001,3002,5432,6379 <SERVER_IP>    # all closed/filtered
 ```
 
 In the browser:
-- `https://app.jinx.to` — storefront renders, products visible (validates FE→BE→DB chain)
+- `https://jinx.to` — storefront renders, products visible (validates FE→BE→DB chain)
 - `https://admin.jinx.to/login` — sign in with `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD`
 
 ## 10. Schedule cron jobs

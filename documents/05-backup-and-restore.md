@@ -149,7 +149,7 @@ Verify:
 
 ```bash
 curl -I https://api.jinx.to/health        # 200
-curl -I https://app.jinx.to               # 200
+curl -I https://jinx.to                   # 200
 ```
 
 ### 7. Communicate

@@ -7,7 +7,7 @@ runs, who owns what, and what to do when something goes wrong.
 
 | Surface | URL | Purpose |
 |---|---|---|
-| Storefront | `https://app.jinx.to` | Customer-facing shop |
+| Storefront | `https://jinx.to` | Customer-facing shop |
 | Admin dashboard | `https://admin.jinx.to` | Operator console (orders, products, users) |
 | API | `https://api.jinx.to` | Backend; not browsed directly |
 
@@ -18,8 +18,8 @@ free Let's Encrypt TLS certificates that auto-renew.
 
 ```
 VPS host (Ubuntu 24.04)
-├── Nginx (TLS termination, routing by subdomain)
-├── jinx-fe        → app.jinx.to
+├── Nginx (TLS termination, routing by Host header)
+├── jinx-fe        → jinx.to
 ├── jinx-admin     → admin.jinx.to
 ├── jinx-api       → api.jinx.to
 ├── jinx-worker    → background jobs (emails, crypto payment monitoring)
@@ -39,7 +39,7 @@ DNS is managed in the registrar's control panel (record the registrar in your
 ops doc). Four A records all point at the VPS public IP:
 
 - `jinx.to` → public IP
-- `app.jinx.to` → public IP
+- `www.jinx.to` → public IP (301-redirects to `jinx.to`)
 - `admin.jinx.to` → public IP
 - `api.jinx.to` → public IP
 
