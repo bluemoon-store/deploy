@@ -50,6 +50,9 @@ docker compose run --rm migrator
 echo "==> Recreating application containers"
 docker compose up -d api worker fe admin nginx
 
+echo "==> Reloading nginx (refresh upstream DNS after container recreate)"
+docker compose exec nginx nginx -s reload
+
 echo "==> Pruning dangling images"
 docker image prune -f
 
