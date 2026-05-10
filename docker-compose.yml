@@ -152,6 +152,7 @@ services:
             context: ../jinx-admin
             dockerfile: Dockerfile
             args:
+                CENTRAL_LICENSE_KEY: ${CENTRAL_LICENSE_KEY}
                 NEXT_PUBLIC_BACKEND_API_URL: ${NEXT_PUBLIC_BACKEND_API_URL}
         image: jinx-admin:${IMAGE_TAG:-latest}
         container_name: jinx-admin

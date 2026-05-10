@@ -101,7 +101,7 @@ Required keys (anything else is optional):
 
 - `DOMAIN` — e.g. `jinx.to`
 - `NEXT_PUBLIC_*` — public URLs (`https://jinx.to`, `https://api.jinx.to/v1`, etc.)
-- `CENTRAL_LICENSE_KEY` — required at FE build time for `@central-icons-react`
+- `CENTRAL_LICENSE_KEY` — required at Docker build for `jinx-fe` and `jinx-admin` (`npm ci` / `@central-icons-react`)
 - `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
 - `DATABASE_URL` — must encode the password from `POSTGRES_PASSWORD` and use the service hostname `postgres`
 - `REDIS_PASSWORD`
@@ -233,7 +233,7 @@ These all came up during the actual rollout — keep this list as a checklist:
 |---|---|
 | `network jinx-net was found but has incorrect label` | `docker compose down && docker network rm jinx-net && docker compose up -d` |
 | `path "/opt/jinx/bluemoon-be" not found` | `x-be-build.context` must match the on-disk repo dir name (`../jinx-be`) |
-| `Central Icons license key is not set` during FE build | `CENTRAL_LICENSE_KEY` must be set in `.env` (and passed as `ARG` in `jinx-fe/Dockerfile`) |
+| `Central Icons license key is not set` during FE or admin image build | `CENTRAL_LICENSE_KEY` in `deploy/.env` and build `ARG` in `jinx-fe` / `jinx-admin` Dockerfiles (compose passes it for both) |
 | `Your lockfile needs to be updated, but yarn was run with --frozen-lockfile` | `jinx-fe`/`jinx-admin` use **npm**; their Dockerfile must check `package-lock.json` before `yarn.lock`. If both are present, delete `yarn.lock` |
 | `Not found file: /app/src/cli.ts` when seeding | Add `-e CLI_PATH=./dist/cli.js` to `docker compose exec` for any `nestjs-command` invocation |
 | Browser says "certificate not trusted" | Issuer contains `(STAGING)` — re-issue without `STAGING=1` (see step 6) |
