@@ -29,7 +29,7 @@ VPS host (Ubuntu 24.04)
 
 External services still in use:
 - **Supabase Storage** — user uploads, public assets
-- **NiceNIC** — transactional email via SMTP (mailbox-style host, no delivery webhooks)
+- **Resend** — transactional email
 - **Tatum** — blockchain RPC for crypto payments
 - **Sentry** *(optional)* — error tracking
 
@@ -72,7 +72,7 @@ These run automatically — no human action needed:
 |---|---|
 | "Site is down" (any subdomain) | SSH in, run `docker compose ps` in `/opt/jinx/deploy` — every container should be `(healthy)`. Restart any that aren't. |
 | "Browser says cert is invalid" | `docker compose exec nginx nginx -t`; check certbot logs at `/var/log/certbot-renew.log`. See *operations* doc for re-issuance. |
-| "Orders aren't sending email" | Worker container is the email processor. `docker compose logs worker \| grep -i email`. Verify `SMTP_HOST`/`SMTP_USER`/`SMTP_PASSWORD` in `.env`, that the sender mailbox exists on NiceNIC, and that SPF/DKIM/DMARC are published for the sending domain. Also check the Bull `failed` set for stuck jobs (`email_queue` retries 5× with exponential backoff before failing). |
+| "Orders aren't sending email" | Worker container is the email processor. `docker compose logs worker \| grep -i email`. Verify `RESEND_API_KEY` and `RESEND_FROM_EMAIL` in `.env`. Check the Bull `failed` set for stuck jobs (`email_queue` retries 5× with exponential backoff before failing). |
 | "Crypto payment not confirming" | Worker logs again. Check Tatum API quota and `TATUM_API_KEY`. |
 | "Database is slow" | See the *operations* doc → Postgres section. |
 
@@ -84,26 +84,16 @@ These are intentionally outside the VPS box and require their own runbooks:
 
 - DNS / domain registrar
 - Supabase project (storage buckets, dashboard access)
-- NiceNIC mailbox account (sending mailbox, per-mailbox send quota, DKIM key issued by NiceNIC, SPF/DMARC published on the sending domain)
+- **Resend** — transactional email
 - Tatum / Kraken API accounts
 - VPS provider account (billing and server console)
-External SaaS (Supabase, NiceNIC, Tatum, Sentry) bills separately.
+External SaaS (Supabase, Resend, Tatum, Sentry) bills separately.
 
 ### Email DNS records (publish on the sending domain)
 
-The NiceNIC mailbox host signs and relays mail, but the receiving domain owner
-(you) must publish these DNS records on the sending domain (e.g. `jinx.to`,
-`rom-consult.com`) for Gmail / Outlook / Yahoo to accept the mail:
+Resend handles the signing and relaying of mail, but you must publish DNS records (SPF, DKIM, DMARC) as provided in the Resend dashboard for the sending domain (e.g. `jinx.to`) for Gmail / Outlook / Yahoo to accept the mail.
 
-- **SPF** — `TXT @ "v=spf1 include:<host given by NiceNIC> -all"` (replace any
-  prior `include:sendpulse.com`).
-- **DKIM** — publish the selector + public key from the NiceNIC control panel
-  (typical record name: `<selector>._domainkey`).
-- **DMARC** — `TXT _dmarc "v=DMARC1; p=none; rua=mailto:dmarc@<domain>"` to
-  start; tighten to `p=quarantine` after a week of clean reports.
-
-Verify with `dig TXT <domain>`, `dig TXT <selector>._domainkey.<domain>`,
-`dig TXT _dmarc.<domain>` and an external checker (mxtoolbox / mail-tester).
+Verify with `dig TXT <domain>` and an external checker (mxtoolbox / mail-tester).
 
 ## Handover checklist
 
@@ -113,7 +103,8 @@ When transferring ownership of this system, hand over:
 - [ ] Server SSH key
 - [ ] Domain registrar credentials
 - [ ] Supabase project access
-- [ ] NiceNIC mailbox credentials, Tatum, Kraken, Sentry accounts
+- [ ] Resend account access (API keys, sender verification)
+- [ ] Tatum, Kraken, Sentry accounts
 - [ ] Git repo access for `jinx-be`, `jinx-fe`, `jinx-admin`, `deploy`
 - [ ] Contents of `/opt/jinx/deploy/.env` (transferred securely — encrypted file or password manager, never email/Slack)
 - [ ] Most recent Postgres dump (`/var/backups/postgres/jinx_*.dump`)
