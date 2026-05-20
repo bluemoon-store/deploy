@@ -82,6 +82,7 @@ The `documents/` folder is the runbook set. Read them in order if you're new:
 | Reload nginx | `docker compose exec nginx nginx -s reload` |
 | Re-issue TLS | `CERTBOT_EMAIL=… ./certbot/init-cert.sh` |
 | Seed admin user | `docker compose exec -e CLI_PATH=./dist/cli.js api yarn seed:admin` |
+| Seed crypto wallet indexes | `docker compose exec -e CLI_PATH=./dist/cli.js api yarn seed:crypto-wallets` |
 
 ## What's intentionally NOT in this repo
 

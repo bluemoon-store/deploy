@@ -124,6 +124,25 @@ without a verified backup first.
    `RUN npm ci` / `yarn install` line
 5. Deploy
 
+## Enabling a new cryptocurrency (e.g. SOL)
+
+When `jinx-be` adds a chain, production needs env + DB steps beyond a normal deploy:
+
+1. Pull latest `deploy` and add the new keys to the on-host `.env` (from `.env.example`):
+   - `SYSTEM_MNEMONIC_SOL` (required for SOL deposit addresses)
+   - `PLATFORM_WALLET_SOL` (optional — forwarding destination)
+   - `SOLANA_RPC_URL` (optional — empty uses default mainnet-beta RPC)
+2. Deploy backend (`./scripts/deploy.sh`) — `migrator` applies the Prisma migration (e.g. `CryptoCurrency` enum + `SOL`).
+3. Seed the wallet index once (idempotent):
+
+```bash
+docker compose exec -e CLI_PATH=./dist/cli.js api yarn seed:crypto-wallets
+```
+
+4. Smoke-test a SOL payment in staging or with a small amount on mainnet.
+
+Existing servers that already ran `seed:all` or `seed:crypto-wallets` before SOL only need step 3 after the migration — the seed command adds missing currencies without resetting indexes.
+
 ## CI/CD (not yet implemented)
 
 Manual `deploy.sh` is fine for a single-host stack. If/when this graduates to

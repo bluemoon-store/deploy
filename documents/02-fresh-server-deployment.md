@@ -109,8 +109,9 @@ Required keys (anything else is optional):
 - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
 - `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_FROM_NAME`
 - `TATUM_API_KEY`
-- All five `SYSTEM_MNEMONIC_*`
+- All six `SYSTEM_MNEMONIC_*` (BTC, ETH, LTC, BCH, TRX, SOL)
 - `HOT_WALLET_ETH_PRIVATE_KEY`, `WALLET_ENCRYPTION_KEY`
+- `SYSTEM_MNEMONIC_SOL` — required if SOL payments are enabled; `PLATFORM_WALLET_SOL` and `SOLANA_RPC_URL` are optional (see `.env.example`)
 - `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`
 - `APP_ENV=production`
 
@@ -178,9 +179,12 @@ compiled CLI path:
 ```bash
 docker compose exec -e CLI_PATH=./dist/cli.js api yarn seed:admin
 docker compose exec -e CLI_PATH=./dist/cli.js api yarn seed:products
-# or everything:
+docker compose exec -e CLI_PATH=./dist/cli.js api yarn seed:crypto-wallets
+# or everything (includes crypto-wallets):
 docker compose exec -e CLI_PATH=./dist/cli.js api yarn seed:all
 ```
+
+`seed:crypto-wallets` creates `system_wallet_index` rows per currency (including SOL). Safe to re-run — it skips currencies that already have an index.
 
 ## 9. Verify
 
