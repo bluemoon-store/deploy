@@ -168,6 +168,26 @@ services:
             - jinx-net
         logging: *default-logging
 
+    gift:
+        build:
+            context: ../jinx-gift
+            dockerfile: Dockerfile
+            args:
+                NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        image: jinx-gift:${IMAGE_TAG:-latest}
+        container_name: jinx-gift
+        restart: unless-stopped
+        environment:
+            NODE_ENV: production
+            PORT: 3003
+            HOSTNAME: 0.0.0.0
+        depends_on:
+            api:
+                condition: service_healthy
+        networks:
+            - jinx-net
+        logging: *default-logging
+
     nginx:
         image: nginx:alpine
         container_name: jinx-nginx
@@ -187,6 +207,7 @@ services:
             - api
             - fe
             - admin
+            - gift
         networks:
             - jinx-net
         logging: *default-logging
