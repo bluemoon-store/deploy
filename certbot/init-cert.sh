@@ -3,8 +3,8 @@
 # One-time TLS certificate issuance via Let's Encrypt HTTP-01 challenge.
 #
 # Prerequisites (must all be true before running):
-#   - DNS A records for <DOMAIN>, www.<DOMAIN>, admin.<DOMAIN>, api.<DOMAIN>
-#     point at this server's public IP.
+#   - DNS A records for <DOMAIN>, www.<DOMAIN>, admin.<DOMAIN>, api.<DOMAIN>,
+#     pdf.<DOMAIN> point at this server's public IP.
 #   - Firewall allows inbound :80 from 0.0.0.0/0.
 #   - deploy/.env populated with DOMAIN and CERTBOT_EMAIL set in the env.
 #
@@ -65,7 +65,7 @@ docker run --rm -d \
 
 trap 'docker rm -f jinx-nginx-bootstrap >/dev/null 2>&1 || true' EXIT
 
-echo "==> Requesting certificate for ${DOMAIN} (incl. www., admin., api.)"
+echo "==> Requesting certificate for ${DOMAIN} (incl. www., admin., api., pdf.)"
 docker run --rm \
   -v jinx-letsencrypt:/etc/letsencrypt \
   -v jinx-certbot-www:/var/www/certbot \
@@ -76,7 +76,8 @@ docker run --rm \
   -d "$DOMAIN" \
   -d "www.$DOMAIN" \
   -d "admin.$DOMAIN" \
-  -d "api.$DOMAIN"
+  -d "api.$DOMAIN" \
+  -d "pdf.$DOMAIN"
 
 echo "==> Cert issued. Stopping bootstrap nginx; bring up the full stack with:"
 echo "    cd ${DEPLOY_DIR} && docker compose up -d"

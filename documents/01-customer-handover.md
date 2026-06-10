@@ -10,8 +10,9 @@ runs, who owns what, and what to do when something goes wrong.
 | Storefront | `https://jinx.to` | Customer-facing shop |
 | Admin dashboard | `https://admin.jinx.to` | Operator console (orders, products, users) |
 | API | `https://api.jinx.to` | Backend; not browsed directly |
+| PDF engine | `https://pdf.jinx.to` | Gift-card template / render engine |
 
-All three live on a single Ubuntu VPS behind one Nginx reverse proxy with
+All of these live on a single Ubuntu VPS behind one Nginx reverse proxy with
 free Let's Encrypt TLS certificates that auto-renew.
 
 ## What's where
@@ -22,6 +23,7 @@ VPS host (Ubuntu 24.04)
 ├── jinx-fe        → jinx.to
 ├── jinx-admin     → admin.jinx.to
 ├── jinx-api       → api.jinx.to
+├── jinx-pdf       → pdf.jinx.to
 ├── jinx-worker    → background jobs (emails, crypto payment monitoring)
 ├── jinx-postgres  → primary database (on host volume, nightly backups)
 └── jinx-redis     → cache + job queue
@@ -36,14 +38,15 @@ External services still in use:
 ## Domains & DNS
 
 DNS is managed in the registrar's control panel (record the registrar in your
-ops doc). Four A records all point at the VPS public IP:
+ops doc). Five A records all point at the VPS public IP:
 
 - `jinx.to` → public IP
 - `www.jinx.to` → public IP (301-redirects to `jinx.to`)
 - `admin.jinx.to` → public IP
 - `api.jinx.to` → public IP
+- `pdf.jinx.to` → public IP
 
-If the server public IP ever changes, update all four.
+If the server public IP ever changes, update all five.
 
 ## Logging in
 

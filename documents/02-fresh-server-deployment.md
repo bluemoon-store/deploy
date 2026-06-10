@@ -15,13 +15,14 @@ End-to-end walkthrough: bare VPS host → fully running production. Allow
 
 ## 2. DNS
 
-Point four A records (TTL 300) at the server public IP, **before** running certbot:
+Point five A records (TTL 300) at the server public IP, **before** running certbot:
 
 ```
 jinx.to         A  <SERVER_IP>
 www.jinx.to     A  <SERVER_IP>
 admin.jinx.to   A  <SERVER_IP>
 api.jinx.to     A  <SERVER_IP>
+pdf.jinx.to     A  <SERVER_IP>
 ```
 
 Wait until `dig +short jinx.to` returns the server IP from a remote machine.

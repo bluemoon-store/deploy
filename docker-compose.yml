@@ -168,14 +168,14 @@ services:
             - jinx-net
         logging: *default-logging
 
-    gift:
+    pdf:
         build:
-            context: ../jinx-gift
+            context: ../jinx-pdf
             dockerfile: Dockerfile
             args:
                 NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-        image: jinx-gift:${IMAGE_TAG:-latest}
-        container_name: jinx-gift
+        image: jinx-pdf:${IMAGE_TAG:-latest}
+        container_name: jinx-pdf
         restart: unless-stopped
         environment:
             NODE_ENV: production
@@ -207,7 +207,7 @@ services:
             - api
             - fe
             - admin
-            - gift
+            - pdf
         networks:
             - jinx-net
         logging: *default-logging

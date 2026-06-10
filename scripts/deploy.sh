@@ -19,7 +19,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 DEPLOY_DIR="${ROOT_DIR}/deploy"
 
 echo "==> Pulling latest code"
-for proj in jinx-be jinx-fe jinx-admin jinx-gift; do
+for proj in jinx-be jinx-fe jinx-admin jinx-pdf; do
   if [[ -d "${ROOT_DIR}/${proj}/.git" ]]; then
     git -C "${ROOT_DIR}/${proj}" pull --ff-only
   fi
@@ -48,7 +48,7 @@ echo "==> Running migrator"
 docker compose run --rm migrator
 
 echo "==> Recreating application containers"
-docker compose up -d api worker fe admin gift nginx
+docker compose up -d api worker fe admin pdf nginx
 
 echo "==> Reloading nginx (refresh upstream DNS after container recreate)"
 docker compose exec nginx nginx -s reload
