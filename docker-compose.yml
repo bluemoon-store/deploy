@@ -183,6 +183,8 @@ services:
             NODE_ENV: production
             PORT: 3003
             HOSTNAME: 0.0.0.0
+            # Server-to-server render auth (read at runtime by /api/order-image).
+            RENDER_SHARED_SECRET: ${RENDER_SHARED_SECRET:-}
         depends_on:
             api:
                 condition: service_healthy
