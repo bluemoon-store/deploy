@@ -133,6 +133,7 @@ services:
                 NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
                 NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
                 NEXT_PUBLIC_GA_ID: ${NEXT_PUBLIC_GA_ID:-}
+                NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
         image: jinx-fe:${IMAGE_TAG:-latest}
         container_name: jinx-fe
         restart: unless-stopped
@@ -154,6 +155,7 @@ services:
             args:
                 CENTRAL_LICENSE_KEY: ${CENTRAL_LICENSE_KEY}
                 NEXT_PUBLIC_BACKEND_API_URL: ${NEXT_PUBLIC_BACKEND_API_URL}
+                NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
         image: jinx-admin:${IMAGE_TAG:-latest}
         container_name: jinx-admin
         restart: unless-stopped
